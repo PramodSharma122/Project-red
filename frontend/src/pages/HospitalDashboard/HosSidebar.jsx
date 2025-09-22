@@ -1,238 +1,130 @@
-// Sidebar.jsx
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiHome, FiInfo, FiMenu } from "react-icons/fi";
-import { MdBloodtype } from "react-icons/md";
-import { CiMedicalCross } from "react-icons/ci";
-import { FaRegCalendarAlt, FaTint, FaUserPlus, FaUsers } from "react-icons/fa";
-import { BsChatDots } from "react-icons/bs";
+import React, { useState } from "react";
+import {
+  FaTachometerAlt,
+  FaTint,
+  FaUser,
+  FaClipboardList,
+  FaCog,
+  FaSignOutAlt,
+  FaHospital,
+} from "react-icons/fa";
+import { RiMenu2Line } from "react-icons/ri";
+import { NavLink, useNavigate } from "react-router-dom";
+import { FiMenu } from "react-icons/fi";
 
-const HosSidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
-  const [dateTime, setDateTime] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+const HosSidebar = ({isOpen, setIsOpen}) => {
   const navigate = useNavigate();
-
-  const location = useLocation();
-  const currentPath = location.pathname;
-
-  // Check Login status on load
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
-
-  // Update date and time every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const date = now.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-      const time = now.toLocaleTimeString();
-      setDateTime(`${date} ${time}`);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Main Navigation Links
-  const navLinks = [
-    { label: "Home", icon: <FiHome />, to: "/" },
-    { label: "About Us", icon: <FiInfo />, to: "/about" },
-    { label: "Why Donate Blood", icon: <FaTint />, to: "/why-donate" },
-    { label: "Blood Compatibility", icon: <MdBloodtype />, to: "/blood-compatibility" },
-    // { label: "Chat Room", icon: <BsChatDots />, to: "/chat-rooms"}
+  
+  const menus = [
+    {
+      name: "Dashboard",
+      icon: <FaTachometerAlt className="text-blue-500"/>,
+      path: "/hospital-dashboard",
+    },
+    { name: "Blood Inventory", icon: <FaTint className="text-rose-600" />, path: "/blood-inventory" },
+    { name: "Donors", icon: <FaUser className="text-green-500"/>, path: "/donor-dashboard" },
+    { name: "Requests", icon: <FaClipboardList className="text-purple-500"/>, path: "/patient-dashboard" },
+    { name: "Hospitals", icon: <FaHospital className="text-red-600"/>, path: "/hospitals" },
+    { name: "Settings", icon: <FaCog className="text-gray-500"/>, path: "/settings" },
   ];
 
   return (
     <div
-      className={`hidden lg:flex fixed top-0 left-0 bg-gray-800 h-screen shadow-lg transition-all duration-300 z-50 ${
-        isSidebarOpen ? "w-66" : "w-25"
-      } overflow-hidden flex-col`}
+      className={`flex top-0 left-0 h-screen ${
+        isOpen ? "w-66" : "w-25"
+      } bg-white fixed transition-all duration-300 z-50 flex-col overflow-visible`}
     >
 
-      {/* Logo */}
+      {/* Top Section */}
       <div className="relative">
-        <div className="flex items-center justify-center gap-3 p-4 pb-6">
+        <div className="flex items-center justify-center gap-3 p-4 border-b border-gray-300 shadow-2xl">
           <img
             src="/logo.png"
             alt="LOGO"
             className={`transition-all duration-300 cursor-pointer ${
-              isSidebarOpen ? "w-10" : "w-13 mx-auto"
-            }`} onClick={() => navigate("/")}
+              isOpen ? "w-10" : "w-13 mx-auto"
+            }`}
+            onClick={() => navigate("/hospital-dashboard")}
           />
-          {isSidebarOpen && (
-            <span className="text-white font-bold text-lg whitespace-nowrap">
+          {isOpen && (
+            <span className="text-red-600 font-bold text-xl whitespace-nowrap">
               Project R.E.D
             </span>
           )}
         </div>
-        <div
-          className="h-0.5 bg-gray-600 w-full absolute bottom-1"
-          style={{ height: "2px" }}
-        ></div>
       </div>
 
-      {/* Date & Toggle Button */}
-      <div className="flex items-center justify-between px-4 pb-2 pt-4">
-        {isSidebarOpen ? (
-          <div className="flex items-center gap-2 text-white font-medium text-sm">
-            <FaRegCalendarAlt className="text-lg" />
-            <span>{dateTime}</span>
-          </div>
-        ) : (
-          <div />
-        )}
+      {/* Toggle Button */}
+      <div className="flex justify-end px-2">
         <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="text-2xl text-white cursor-pointer hover:text-blue-300 transition duration-300"
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-3xl cursor-pointer p-2 hover:text-blue-500 font-extrabold"
         >
-          <FiMenu />
+          {isOpen ? <FiMenu /> : <RiMenu2Line />}
         </button>
       </div>
 
-      {/* Navigation Links Menus */}
-      <div className="flex flex-col items-start p-4 space-y-4 pt-4">
-        {navLinks.map((item, i) => (
-          <Link
-            to={item.to}
+      {/* Menu Section */}
+      <nav className="flex flex-col items-start py-4 pl-2 space-y-2 relative">
+        {menus.map((menu, i) => (
+          <NavLink
             key={i}
-            className={`group flex items-center p-2 rounded-md hover:bg-gray-700 text-white w-full transition-all duration-200 hover:text-red-400 ${
-              currentPath === item.to
-                ? "bg-red-800"
-                : "hover:bg-gray-700 "
-            } font-medium text-lg ${
-              isSidebarOpen ? "gap-4" : "justify-center"
-            }`}
+            to={menu.path}
+            className={({ isActive }) =>
+              `group relative flex items-center p-3 rounded-l-md text-gray-700 w-full transition-all duration-200 ${
+                isActive
+                  ? "bg-[#e4f0f0] text-red-500 border-l-4 border-red-500 "
+                  : "hover:bg-[#e4f0f0]"
+              } font-medium text-lg ${isOpen ? "gap-4" : "justify-center"}`
+            }
           >
             <span
-              className={` ${
-                isSidebarOpen ? "text-xl" : "text-2xl"
+              className={`${
+                isOpen ? "text-xl" : "text-2xl"
               } flex items-center justify-center`}
             >
-              {item.icon}
+              {menu.icon}
             </span>
-            {isSidebarOpen && (
+
+            {/* Show text if open */}
+            {isOpen && (
               <span
                 className={`transition-all duration-300 transform group-hover:translate-x-3`}
               >
-                {item.label}
+                {menu.name}
               </span>
             )}
-          </Link>
+
+            {/* Tooltip when closed */}
+            {!isOpen && (
+              <span className="absolute left-full ml-2 px-2 py-1 rounded-md bg-gray-800 text-white text-sm opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                {menu.name}
+              </span>
+            )}
+          </NavLink>
         ))}
+      </nav>
 
-        {/* Conditional Auth Links */}
-        {/* Blood Request Menu */}
-        {isLoggedIn && (
-          <Link
-            to="/blood-request"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`group flex items-center p-2 rounded-md hover:bg-gray-700 text-white w-full transition-all duration-200 hover:text-red-400 font-medium text-lg ${
-              currentPath === "/blood-request"
-                ? "bg-red-800 text-white"
-                : "text-white hover:bg-gray-700"
-            } ${isSidebarOpen ? "gap-4" : "justify-center"}`}
-          >
-            <span
-              className={`${
-                isSidebarOpen ? "text-xl" : "text-2xl"
-              } flex items-center justify-center`}
-            >
-              <CiMedicalCross />
+      {/* Footer (Logout) */}
+      <div className="mt-auto pb-3 border-t border-gray-200">
+        <button
+          onClick={() => console.log("Logout clicked")}
+          className={`group flex items-center w-full px-4 py-3 rounded-lg text-gray-700 font-medium transition-all duration-200 hover:bg-red-100 hover:text-red-600 ${isOpen ? "justify-start gap-3" : "justify-center"}`}
+        >
+          <FaSignOutAlt className="text-xl group-hover:scale-110 transition-transform duration-200" />
+          {isOpen && (
+            <span className="group-hover:translate-x-1 transition-transform">
+              Logout
             </span>
-            {isSidebarOpen && (
-              <span
-                className={`transition-all duration-300 transform group-hover:translate-x-3`}
-              >
-                Blood Request
-              </span>
-            )}
-          </Link>
-        )}
+          )}
 
-        {/* Register Menu */}
-        {!isLoggedIn && (
-          <Link
-            to="/register"
-            className={`group flex items-center p-2 rounded-md hover:bg-gray-700 text-white w-full transition-all duration-200 hover:text-red-400 font-medium text-lg ${
-              currentPath === "/register" || currentPath === "/hospital_register"
-                ? "bg-red-800 text-white"
-                : "text-white hover:bg-gray-700"
-            } ${isSidebarOpen ? "gap-4" : "justify-center"}`}
-          >
-            <span
-              className={`${
-                isSidebarOpen ? "text-xl" : "text-2xl"
-              } flex items-center justify-center`}
-            >
-              <FaUserPlus />
+          {/* Tooltip when closed */}
+          {!isOpen && (
+            <span className="absolute left-full ml-2 px-2 py-1 rounded-md bg-gray-800 text-white text-sm opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+              Logout
             </span>
-            {isSidebarOpen && (
-              <span
-                className={`transition-all duration-300 transform group-hover:translate-x-3`}
-              >
-                Register Now
-              </span>
-            )}
-          </Link>
-        )}
-
-        {/* Patients Requests Menu */}
-        {isLoggedIn && (
-          <Link
-            to="/patients-request"
-            className={`group flex items-center p-2 rounded-md hover:bg-gray-700 text-white w-full transition-all duration-200 hover:text-red-400 font-medium text-lg ${
-              currentPath === "/patients-request"
-                ? "bg-red-800 text-white"
-                : "text-white hover:bg-gray-700"
-            } ${isSidebarOpen ? "gap-4" : "justify-center"}`}
-          >
-            <span
-              className={`${
-                isSidebarOpen ? "text-xl" : "text-2xl"
-              } flex items-center justify-center`}
-            >
-              <FaUsers />
-            </span>
-            {isSidebarOpen && (
-              <span
-                className={`transition-all duration-300 transform group-hover:translate-x-3`}
-              >
-                Patients Request
-              </span>
-            )}
-          </Link>
-        )}
-
-
-        {/* Chat room Menu */}
-        {isLoggedIn && (
-          <Link
-            to="/chat-rooms"
-            className={`group flex items-center p-2 rounded-md hover:bg-gray-700 text-white w-full transition-all duration-200 hover:text-red-400 font-medium text-lg ${
-              currentPath.startsWith("/chat-rooms")
-                ? "bg-red-800 text-white"
-                : "text-white hover:bg-gray-700"
-            } ${isSidebarOpen ? "gap-4" : "justify-center"}`}
-          >
-            <span
-              className={`${
-                isSidebarOpen ? "text-xl" : "text-2xl"
-              } flex items-center justify-center`}
-            >
-              <BsChatDots />
-            </span>
-            {isSidebarOpen && (
-              <span
-                className={`transition-all duration-300 transform group-hover:translate-x-3`}
-              >
-                Chat Room
-              </span>
-            )}
-          </Link>
-        )}
+          )}
+        </button>
       </div>
     </div>
   );

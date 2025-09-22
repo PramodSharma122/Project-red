@@ -10,6 +10,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
+import { FaArrowAltCircleLeft, FaArrowLeft } from "react-icons/fa";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -82,7 +83,7 @@ export default function Login() {
       const token = res.data.access;
 
       localStorage.setItem("token", token);
-      
+
       try {
         const userInfo = jwtDecode(token);
         console.log("Decoded JWT:", userInfo);
@@ -106,12 +107,12 @@ export default function Login() {
 
       // Navigate after short delay & reload
       setTimeout(() => {
-        if (role === "user"){
-        navigate(`/patients-request`);
-      } else if (role === "hospital"){
-        navigate("/hospital-dashboard");
-      }
-      window.location.reload();
+        if (role === "user") {
+          navigate(`/`);
+        } else if (role === "hospital") {
+          navigate("/hospital-dashboard");
+        }
+        // window.location.reload();
       }, 1600);
     } catch (err) {
       const errorMessage = err.response
@@ -129,6 +130,12 @@ export default function Login() {
   return (
     <div>
       <div className="max-w-sm mx-auto mt-20 p-5 border shadow rounded bg-cyan-50">
+        <div
+          onClick={() => navigate("/")}
+          className="bg-gray-300 p-2 rounded-lg w-fit shadow-xl"
+        >
+          <FaArrowLeft className="text-lg cursor-pointer hover:text-blue-600" />
+        </div>
         <h2 className="text-2xl text-center font-bold mb-4 text-red-400">
           Login to Project RED
         </h2>
@@ -145,7 +152,6 @@ export default function Login() {
             <MenuItem value="user">User</MenuItem>
             <MenuItem value="hospital">Hospital</MenuItem>
           </TextField>
-
 
           <TextField
             margin="normal"
@@ -174,12 +180,16 @@ export default function Login() {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword((prev) => !prev)} edge="end">{showPassword ? <FiEyeOff /> : <FiEye />}</IconButton>
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <FiEyeOff /> : <FiEye />}
+                  </IconButton>
                 </InputAdornment>
               ),
             }}
           />
-
 
           {/* Remember Me + Forgot Password */}
           <div className="font-semibold flex justify-between items-center pt-3">
@@ -212,7 +222,12 @@ export default function Login() {
 
           <p className=" my-5 text-sm">
             Don't have an account?{" "}
-            <span onClick={()=> navigate("/register")} className="text-blue-600 cursor-pointer underline">Register here</span>
+            <span
+              onClick={() => navigate("/register")}
+              className="text-blue-600 cursor-pointer underline"
+            >
+              Register here
+            </span>
           </p>
           <button
             type="submit"

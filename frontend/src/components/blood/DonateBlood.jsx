@@ -17,7 +17,6 @@ const DonateBlood = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [foundMsg, setFoundMsg] = useState("");
-  const [processing, setProcessing] = useState(null);
   const [hospitalMap, setHospitalMap] = useState({});
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
@@ -134,26 +133,6 @@ const DonateBlood = () => {
       Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
-  };
-
-  const findNearestHospital = (donorLocation, hospitals) => {
-    if (!donorLocation || !hospitals) return null;
-    let nearest = null;
-    let minDistance = Infinity;
-    Object.values(hospitals).forEach((h) => {
-      if (!h.location_lat || !h.location_long) return;
-      const dist = calculateDistance(
-        donorLocation.lat,
-        donorLocation.lng,
-        h.location_lat,
-        h.location_long
-      );
-      if (dist < minDistance) {
-        minDistance = dist;
-        nearest = h;
-      }
-    });
-    return nearest;
   };
 
   const createDonation = async (blood_request_id) => {
@@ -277,33 +256,9 @@ const DonateBlood = () => {
           (err.response?.data?.detail || err.message || "Unknown error")
       );
     } finally {
-      setProcessing(null);
     }
   };
 
-  // Reject
-  const handleReject = async (req) => {
-    if (processing === req.id) return;
-    setProcessing(req.id);
-
-    try {
-      const token = localStorage.getItem("token");
-
-      await axios.post(
-        `${API_BASE_URL}/blood-requests/${req.id}/reject/`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setSuccess("Request rejected successfully.");
-      // remove rejected request from list
-      setRequests((prev) => prev.filter((r) => r.id !== req.id));
-    } catch (err) {
-      setError("Failed to reject donation request");
-    } finally {
-      setProcessing(null);
-    }
-  };
 
   if (loading) return <p>Loading blood requests...</p>;
 
